@@ -7,7 +7,7 @@ import (
 
 func Test_AddUnit(t *testing.T) {
 	name := "test_unit"
-	u, err := AddUnit(name, 1, nil)
+	u, err := UnitDefine(name, 1, nil)
 	if u == nil || err != nil {
 		t.Error("init failed")
 		return
@@ -15,7 +15,7 @@ func Test_AddUnit(t *testing.T) {
 	if u.name != name {
 		t.Error("wrong name")
 	}
-	_, err2 := AddUnit(name, 1, nil)
+	_, err2 := UnitDefine(name, 1, nil)
 	if err2 == nil {
 		t.Error("unit with the same name can be re-defined")
 	}
@@ -37,9 +37,9 @@ func Test_AddUnit(t *testing.T) {
 }
 
 func Test_ScaleChain(t *testing.T) {
-	px, err1 := AddUnit("px", 1, nil)
-	em, err2 := AddUnit("em", 16, px)
-	kem, err3 := AddUnit("kem", 1000, em)
+	px, err1 := UnitDefine("px", 1, nil)
+	em, err2 := UnitDefine("em", 16, px)
+	kem, err3 := UnitDefine("kem", 1000, em)
 	if err1 != nil && err2 != nil && err3 != nil {
 		t.Error("add unit fail")
 		return
@@ -50,9 +50,9 @@ func Test_ScaleChain(t *testing.T) {
 }
 
 func Test_UnitCircle(t *testing.T) {
-	a, _ := AddUnit("a", 1, nil)
-	b, _ := AddUnit("b", 16, a)
-	c, _ := AddUnit("c", 1000, b)
+	a, _ := UnitDefine("a", 1, nil)
+	b, _ := UnitDefine("b", 16, a)
+	c, _ := UnitDefine("c", 1000, b)
 	a.ref = c
 	if v, _ := a.Val(); !math.IsNaN(v) {
 		t.Error("error")

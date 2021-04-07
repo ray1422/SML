@@ -44,11 +44,19 @@ func (u *Unit) getVal(vis map[*Unit]bool) (float64, error) {
 	return ref_val * u.scale, nil
 
 }
-func AddUnit(name string, scale float64, ref *Unit) (*Unit, error) {
+func UnitDefine(name string, scale float64, ref *Unit) (*Unit, error) {
 	if _, exists := units[name]; exists {
 		return nil, errors.New("unit " + name + " already defined 🙄🙄🙄")
 	}
 	u := &Unit{name: name, scale: scale, ref: ref, val: math.NaN()}
 	units[name] = u
 	return u, nil
+}
+
+func UnitUndefine(name string) {
+	delete(units, name)
+}
+
+func UnitClear() {
+	units = make(map[string]*Unit)
 }
