@@ -5,18 +5,21 @@ import (
 	"math"
 )
 
+// type to unitType
 type UNIT_TYPE int
 
 const (
+	//types of unit
 	ABS UNIT_TYPE = iota
 	REL UNIT_TYPE = iota
 )
 
 var (
 	units        map[string]*Unit = make(map[string]*Unit)
-	UnitType2Str                  = map[UNIT_TYPE]string{ABS: "absolute", REL: "relative"}
+	unitType2Str                  = map[UNIT_TYPE]string{ABS: "absolute", REL: "relative"}
 )
 
+// unit struct
 type Unit struct {
 	name     string
 	scale    float64
@@ -25,12 +28,17 @@ type Unit struct {
 	unitType UNIT_TYPE
 }
 
+// human readable unit name with type
 func (u *Unit) String() string {
-	return u.name + "(" + UnitType2Str[u.unitType] + " unit)"
+	return u.name + "(" + unitType2Str[u.unitType] + " unit)"
 }
+
+// name of unit
 func (u *Unit) Name() string {
 	return u.name
 }
+
+// calculated value of a unit
 func (u *Unit) Val() (float64, error) {
 
 	if u.unitType == REL || math.IsNaN(u.val) { // rel unit can't be cache
@@ -39,6 +47,8 @@ func (u *Unit) Val() (float64, error) {
 		return u.val, nil
 	}
 }
+
+// update scale
 func (u *Unit) UpdateScale(scale float64) error {
 	if u.unitType == ABS {
 		return errors.New("an absolute unit can't update it's value")
@@ -66,6 +76,7 @@ func (u *Unit) getVal(vis map[*Unit]bool) (float64, error) {
 
 }
 
+// define new unit
 func AddUnit(name string, scale float64, ref *Unit, unitType UNIT_TYPE) (*Unit, error) {
 	if unitType == ABS && ref != nil {
 		if ref.unitType != ABS {
@@ -81,15 +92,20 @@ func AddUnit(name string, scale float64, ref *Unit, unitType UNIT_TYPE) (*Unit, 
 	return u, nil
 }
 
+// remove a unit
 func RemoveUnit(name string) {
 	delete(units, name)
 }
+
+// get unit by it's name
 func GetUnit(name string) *Unit {
 	if v, ok := units[name]; ok {
 		return v
 	}
 	return nil
 }
+
+// delete all units
 func ClearUnits() {
 	units = make(map[string]*Unit)
 }
