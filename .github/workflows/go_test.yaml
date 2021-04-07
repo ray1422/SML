@@ -6,7 +6,7 @@ on:
         branches:
             - master
 
-name: tests
+name: Go Tests
 jobs:
     test:
         strategy:
@@ -38,10 +38,11 @@ jobs:
             - name: Calc coverage
               run: |
                   go test ./... -v -covermode=count -coverprofile=coverage.out
-            - name: Convert coverage.out to coverage.lcov
-              uses: jandelgado/gcov2lcov-action@v1.0.6
+            - name: gcov2lcov-action
+              uses: jandelgado/gcov2lcov-action@v1.0.8
+
             - name: Coveralls
-              uses: coverallsapp/github-action@v1.1.2
+              uses: coverallsapp/github-action@master
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
                   path-to-lcov: coverage.lcov
