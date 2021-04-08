@@ -2,8 +2,75 @@ package unit
 
 import (
 	"math"
+	"math/rand"
+	"sync"
 	"testing"
+	"time"
 )
+
+func Test_UpdateScaleThenVal(t *testing.T) {
+	// err when update on abs unit
+	x, _ := AddUnit("x", 1, nil, ABS)
+	_, err := UpdateScaleThenVal(x, 1, x)
+	if err == nil {
+		t.Fatal("UpdateScaleThenVal error not working!")
+	}
+	var g sync.WaitGroup
+	p, _ := AddUnit("p", 1, nil, REL)
+	q, _ := AddUnit("q", 1, p, REL)
+	r, _ := AddUnit("r", 1, q, REL)
+	s, _ := AddUnit("s", 1, r, REL)
+	for i := 0; i < 1e5; i++ {
+		g.Add(1)
+		go func() {
+			defer g.Done()
+			rand := rand.Float64() * 10
+			val, err := UpdateScaleThenVal(p, rand, s)
+			if err != nil {
+				panic(err)
+			}
+			if math.Abs(val-rand) > 1e-6 {
+				t.Error("wrong value")
+			}
+		}()
+	}
+	g.Wait()
+}
+func Test_ConcurrentlyUpdateUnit(t *testing.T) {
+	v, _ := AddUnit("v", 1, nil, REL)
+	_, _ = AddUnit("u", 1, v, REL)
+	ch := make(chan float64, 1)
+	go func() {
+		v := GetUnit("v")
+		u := GetUnit("u")
+		Lock()
+		v.UpdateScale(2)
+		time.Sleep(100 * time.Millisecond)
+		val, _ := u.Val()
+		Unlock()
+		ch <- val
+
+	}()
+	for {
+		flg := false
+		select {
+		case x, ok := <-ch:
+			if ok {
+				if math.Abs(x-2) > 1e-6 {
+					t.Errorf("wrong value %f, lock failed.\n", x)
+				}
+				flg = true
+			}
+		default:
+			Lock()
+			v.UpdateScale(100)
+			Unlock()
+		}
+		if flg {
+			break
+		}
+	}
+}
 
 func TestDeleteUnit(t *testing.T) {
 	AddUnit("test", 1, nil, ABS)

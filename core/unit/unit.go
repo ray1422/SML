@@ -3,6 +3,7 @@ package unit
 import (
 	"errors"
 	"math"
+	"sync"
 )
 
 // type to unitType
@@ -17,6 +18,7 @@ const (
 var (
 	units        map[string]*Unit = make(map[string]*Unit)
 	unitType2Str                  = map[UNIT_TYPE]string{ABS: "absolute", REL: "relative"}
+	updateLock   *sync.Mutex      = new(sync.Mutex)
 )
 
 // unit struct
@@ -26,6 +28,16 @@ type Unit struct {
 	ref      *Unit
 	val      float64
 	unitType UNIT_TYPE
+}
+
+// prevent unit being updated while getting value.
+func Lock() {
+	updateLock.Lock()
+}
+
+// unlock the updating lock
+func Unlock() {
+	updateLock.Unlock()
 }
 
 // human readable unit name with type
@@ -74,6 +86,18 @@ func (u *Unit) getVal(vis map[*Unit]bool) (float64, error) {
 	}
 	return ref_val * u.scale, nil
 
+}
+
+func UpdateScaleThenVal(to_update *Unit, new_scale float64, unit_to_get *Unit) (float64, error) {
+	defer Unlock()
+	Lock()
+	err := to_update.UpdateScale(new_scale)
+	if err != nil {
+		return math.NaN(), err
+	}
+
+	val, err := unit_to_get.Val()
+	return val, err
 }
 
 // define new unit
