@@ -20,7 +20,9 @@ func Test_UpdateScaleThenVal(t *testing.T) {
 	q, _ := AddUnit("q", 1, p, REL)
 	r, _ := AddUnit("r", 1, q, REL)
 	s, _ := AddUnit("s", 1, r, REL)
+	pool := make(chan bool, 1024)
 	for i := 0; i < 1e5; i++ {
+		pool <- true
 		g.Add(1)
 		go func() {
 			defer g.Done()
@@ -32,6 +34,7 @@ func Test_UpdateScaleThenVal(t *testing.T) {
 			if math.Abs(val-rand) > 1e-6 {
 				t.Error("wrong value")
 			}
+			<-pool
 		}()
 	}
 	g.Wait()
