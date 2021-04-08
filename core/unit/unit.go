@@ -60,7 +60,7 @@ func (u *Unit) Val() (float64, error) {
 	}
 }
 
-// update scale
+// update scale, needs call Lock() if multithreading
 func (u *Unit) UpdateScale(scale float64) error {
 	if u.unitType == ABS {
 		return errors.New("an absolute unit can't update it's value")
