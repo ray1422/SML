@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	specialParser = regexp.MustCompile(`^(([^#\x60*_~\\$\-.0-9])+)`)
+	specialParser = regexp.MustCompile(`^(([^#\x60*_~\\$\-.0-9\n])+)`)
 	Parse         = ParseNonAsync
 	// specialParser = regexp.MustCompile(`^(([^#\x60*_~\\$])+?)([#\x60*_~\\$]|$)`)
 
