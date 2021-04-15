@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -53,6 +54,7 @@ func Benchmark_ParserAsync(t *testing.B) {
 	__LOL__
 	__`
 	txt = txt + txt + txt + txt + txt + txt + txt + txt + txt + txt
+	fmt.Printf("len: %d\n", len(txt))
 	for i := 0; i < t.N; i++ {
 		ParseAsync(txt)
 	}

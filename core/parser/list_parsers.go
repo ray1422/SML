@@ -10,34 +10,6 @@ import (
 
 var ListLineRe = regexp.MustCompile(`^((?P<indent>[ \t]*)[ \t]*(?P<listType>-|[0-9]+\.) *(?P<content>[^\n]+))`)
 
-func readLine(s *string) (string, int) {
-	s_idx := -1
-	for i, r := range *s {
-		if r != '\n' {
-			s_idx = i
-			break
-		}
-	}
-	if s_idx == -1 {
-		// all are \n
-		l := len(*s)
-		*s = ""
-		return "", l
-	}
-	*s = (*s)[s_idx:]
-	idx := strings.IndexRune(*s, '\n')
-	if idx == -1 {
-		// no \n found
-		tmp := *s
-		*s = ""
-		return tmp, len(tmp) + s_idx
-	} else {
-		tmp := (*s)[:idx]
-		*s = (*s)[idx:]
-		return tmp, idx + s_idx
-	}
-
-}
 func parseList(s string) (int, *container.ListBlock) {
 	subs := utils.RegexNamedGroupMap(ListLineRe.FindStringSubmatch(s), ListLineRe.SubexpNames())
 	if len(subs) == 0 {

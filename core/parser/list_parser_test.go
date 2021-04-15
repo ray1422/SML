@@ -38,9 +38,8 @@ func Test_OList(t *testing.T) {
 2. test
 3. test
 wwwwwwwwww
-1. test
-2. test
-`
+	1. test
+	2. test`
 	blk := Parse(content)
 	container.Dump(blk, 0)
 }
