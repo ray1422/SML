@@ -140,13 +140,15 @@ func Dump(blk Block, indent int) {
 			fmt.Println(indentStr + "text: " + "<nil>")
 		}
 	case *CodeBlock:
-		fmt.Println(indentStr + "Lang: " + u.Lang)
-		fmt.Println(indentStr + "Content:\n" + u.Content)
+		fmt.Println(indentStr + indentStrSingle + "Lang: " + u.Lang)
+		fmt.Println(indentStr + indentStrSingle + "Content:\n" + u.Content)
 	default:
 		fmt.Println(indentStr + getType(blk) + ":")
 		switch v := blk.(type) {
 		case *InlineBlock:
-			fmt.Println(indentStr + indentStrSingle + "InlineBlockType: " + v.InlineBlockType.String())
+			fmt.Println(indentStr+indentStrSingle+"InlineBlockType:", v.InlineBlockType)
+		case *ListBlock:
+			fmt.Println(indentStr+indentStrSingle+"Ordered:", v.Ordered)
 		}
 		for _, v := range blk.Children() {
 			Dump(v, indent+1)

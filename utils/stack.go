@@ -13,7 +13,7 @@ type Stack struct {
 	lock  sync.RWMutex
 }
 
-// New creates a new ItemStack
+// NewStack creates a new ItemStack
 func NewStack() *Stack {
 	s := &Stack{}
 	s.items = []Item{}
@@ -43,6 +43,8 @@ func (s *Stack) Pop() Item {
 	s.items = s.items[0 : len(s.items)-1]
 	return item
 }
+
+// Top get top elem or nil if stk is empty
 func (s *Stack) Top() Item {
 	s.lock.Lock()
 	defer s.lock.Unlock()

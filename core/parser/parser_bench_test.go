@@ -8,6 +8,16 @@ func Benchmark_Parser(t *testing.B) {
 	RegAll()
 	txt := `# Title **BOLD**
 	**BOLD \\ \* ESCAPE**
+	- list
+		- list
+		- list
+		- list
+			1. wwww
+			2. wwwww
+			4. wwwww
+	- list
+1. wwww
+2. eeeee
 	\\n
 	~~__ITALIC**BOLD**__ LOL~~
 	# Title

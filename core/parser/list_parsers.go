@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"fmt"
 	"regexp"
 	"strings"
 
@@ -9,7 +8,7 @@ import (
 	"github.com/ray1422/SML/utils"
 )
 
-var ListLineRe = regexp.MustCompile(`^((?P<indent>[ \t]*)[ \t]*(?P<listType>-|[0-9]+\.) ?(?P<content>[^\n]+))`)
+var ListLineRe = regexp.MustCompile(`^((?P<indent>[ \t]*)[ \t]*(?P<listType>-|[0-9]+\.) *(?P<content>[^\n]+))`)
 
 func readLine(s *string) (string, int) {
 	s_idx := -1
@@ -45,7 +44,7 @@ func parseList(s string) (int, *container.ListBlock) {
 		return 0, nil
 	}
 	ordered := subs["listType"] != "-"
-	fmt.Println("parseList", subs["content"], len(subs["indent"]))
+
 	blk, _ := childUtil([]string{subs["content"]}, 0, &container.ListBlock{Ordered: ordered})
 	return len(subs["indent"]), blk.(*container.ListBlock)
 
@@ -112,10 +111,6 @@ func parseListGroup(ss []string) (*container.ListGroupBlock, int) {
 func parseListGroups(s *string) *container.BaseBlock {
 	*s = strings.ReplaceAll(*s, "\t", "    ")
 	lines := strings.Split(*s, "\n")
-	for _, line := range lines {
-		fmt.Printf("'%s'\n", line)
-	}
-
 	wrapper2 := &container.BaseBlock{}
 	for len(lines) > 0 {
 		blks, n := parseListGroup(lines)
@@ -133,7 +128,7 @@ func registerLists() {
 		/*
 			match the whole list content
 		*/
-		re: regexp.MustCompile(`^\n?(?P<listContent>(?P<firstIndent>[ \t]*)(([ \t]*)(-|[0-9]+\.) ?([^\n]+)(\n))+)`),
+		re: regexp.MustCompile(`^\n?(?P<listContent>(?P<firstIndent>[ \t]*)(([ \t]*)(-|[0-9]+\.) *([^\n]+)(\n))+)`),
 		parse: func(re *regexp.Regexp, s string) (container.Block, int) {
 			matches := re.FindStringSubmatch(s)
 			names := re.SubexpNames()
