@@ -4,6 +4,7 @@ import (
 	"regexp"
 
 	"github.com/ray1422/SML/core/container"
+	"github.com/ray1422/SML/utils"
 )
 
 var (
@@ -68,9 +69,21 @@ func RegAll() {
 	})
 
 	registerLists()
-
+	RegisterBlockParser(&RegexParser{ // img
+		re: regexp.MustCompile(`^\!(?P<alt>\[.*\])\((?P<path>([^'"()\\]|\\.)*?|('([^'\\]|\\.)*?')|("([^"\\]|\\.)*?")) *(?P<title>([^'"()\\]*?)|('([^']|\\.)*?')|("([^"]|\\.)*?"))?\)`),
+		parse: func(re *regexp.Regexp, s string) (container.Block, int) {
+			subs := utils.RegexNamedGroupMap(re.FindStringSubmatch(s), re.SubexpNames())
+			if subs == nil {
+				return nil, 0
+			}
+			return childUtil(re.FindStringSubmatch(s), 1, &container.ImageBlock{
+				Src:   subs["path"],
+				Alt:   subs["alt"],
+				Title: subs["title"],
+			})
+		},
+	})
 	RegisterBlockParser(&RegexParser{
-
 		re: regexp.MustCompile(`^\*\*` + rem(`\*`) + `\*\*`), // bold
 		parse: func(re *regexp.Regexp, s string) (container.Block, int) {
 			return childUtil(re.FindStringSubmatch(s), 1, &container.InlineBlock{InlineBlockType: container.BOLD})

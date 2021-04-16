@@ -20,6 +20,10 @@ func NewStack() *Stack {
 	return s
 }
 
+func (s *Stack) Size() int {
+	return len(s.items)
+}
+
 // Print prints all the elements
 func (s *Stack) Print() {
 	fmt.Println(s.items)
@@ -45,6 +49,9 @@ func (s *Stack) Pop() Item {
 }
 
 // Top get top elem or nil if stk is empty
+func (s *Stack) Empty() bool {
+	return s.Size() == 0
+}
 func (s *Stack) Top() Item {
 	s.lock.Lock()
 	defer s.lock.Unlock()
