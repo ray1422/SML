@@ -6,7 +6,7 @@ import (
 	"github.com/ray1422/SML/utils"
 )
 
-func parseAttr(_s string) (*utils.Dict, int) {
+func parseAttr(_s string) (utils.Dict, int) {
 	s := []rune(_s)
 	if len(s) < 2 || s[0] != '{' {
 		return nil, 0
@@ -137,5 +137,8 @@ mainFor:
 			}
 		}
 	}
-	return cur, n + 1
+	if cur == nil {
+		return nil, 0
+	}
+	return *cur, n + 1
 }

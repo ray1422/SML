@@ -70,17 +70,23 @@ func RegAll() {
 
 	registerLists()
 	RegisterBlockParser(&RegexParser{ // img
-		re: regexp.MustCompile(`^\!(?P<alt>\[.*\])\((?P<path>([^'"()\\]|\\.)*?|('([^'\\]|\\.)*?')|("([^"\\]|\\.)*?")) *(?P<title>([^'"()\\]*?)|('([^']|\\.)*?')|("([^"]|\\.)*?"))?\)`),
+		re: regexp.MustCompile(`^\!(\[(?P<alt>.*)\])\((?P<path>([^'"()\\]|\\.)*?|('([^'\\]|\\.)*?')|("([^"\\]|\\.)*?")) +(?P<title>([^'"()\\]*?)|('([^']|\\.)*?')|("([^"]|\\.)*?"))?\)`),
 		parse: func(re *regexp.Regexp, s string) (container.Block, int) {
 			subs := utils.RegexNamedGroupMap(re.FindStringSubmatch(s), re.SubexpNames())
 			if subs == nil {
 				return nil, 0
 			}
-			return childUtil(re.FindStringSubmatch(s), 1, &container.ImageBlock{
+			subs["title"] = utils.QuoteRM(subs["title"])
+			subs["alt"] = utils.QuoteRM(subs["alt"])
+			subs["path"] = utils.QuoteRM(subs["path"])
+			attr, n := parseAttr(s[len(subs[0]):])
+			el, n0 := childUtil([]string{subs[0], subs["title"]}, 1, &container.ImageBlock{
 				Src:   subs["path"],
 				Alt:   subs["alt"],
 				Title: subs["title"],
+				Attr:  attr,
 			})
+			return el, n + n0
 		},
 	})
 	RegisterBlockParser(&RegexParser{

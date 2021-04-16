@@ -1,11 +1,15 @@
 package utils
 
-func StrNCmp(a string, b string, n int) bool {
-	if len(a) < n || len(b) < n {
-		return false
+func StrIdxSafe(s string, i int) bool {
+	return len(s) > i
+}
+
+func QuoteRM(s string) string {
+	if len(s) < 2 { // "" or "?"
+		return s
 	}
-	if a[:n] == b[:n] {
-		return true
+	if (s[0] == '"' && s[len(s)-1] == '"') || (s[0] == '\'' && s[len(s)-1] == '\'') {
+		s = s[1 : len(s)-1]
 	}
-	return false
+	return s
 }

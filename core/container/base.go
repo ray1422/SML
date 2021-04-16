@@ -102,6 +102,11 @@ func Dump(blk Block, indent int) {
 			fmt.Println(indentStr+indentStrSingle+"InlineBlockType:", v.InlineBlockType)
 		case *ListBlock:
 			fmt.Println(indentStr+indentStrSingle+"Ordered:", v.Ordered)
+		case *ImageBlock:
+			fmt.Println(indentStr+indentStrSingle+"Alt:", v.Alt)
+			fmt.Println(indentStr+indentStrSingle+"Src:", v.Src)
+			fmt.Println(indentStr + indentStrSingle + "Attr:")
+			v.Attr.Dump(indent + 1)
 		}
 		for _, v := range blk.Children() {
 			Dump(v, indent+1)

@@ -90,13 +90,8 @@ func ParseNonAsync(s string) (b container.VarBlock) {
 	str := ""
 	for s != "" {
 		flag := true
-		type ret struct {
-			order int
-			val   container.Block
-			idx   int
-		}
-		ch := make(chan ret, len(BlockParsers)+5)
-		for i, bp := range BlockParsers {
+
+		for _, bp := range BlockParsers {
 
 			if val, idx := bp.Parse(s); val != nil {
 				if str != "" {
@@ -104,7 +99,6 @@ func ParseNonAsync(s string) (b container.VarBlock) {
 					root.Append(&container.TextBlock{Content: str})
 					str = ""
 				}
-				ch <- ret{order: i, val: val, idx: idx}
 				root.Append(val)
 				s = s[idx:]
 				flag = false

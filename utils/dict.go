@@ -48,7 +48,7 @@ func (d *Dict) Dump(indent int) {
 	for i := 0; i < indent; i++ {
 		indentStr += perIndStr
 	}
-	if d == nil {
+	if d == nil || *d == nil {
 		fmt.Println(indentStr + "<nil>")
 		return
 	}
