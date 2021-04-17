@@ -16,7 +16,7 @@ type BlockParser interface {
 	Parse(s string) (container.Block, int)
 }
 
-// RegisterBlockParser Please makesure your identifier is recorded in specialParser (parser.go) or it might be treat as normal string.
+// RegisterBlockParser Please make sure your identifier is recorded in specialParser (parser.go) or it might be treat as normal string.
 func RegisterBlockParser(f BlockParser) {
 	BlockParsers = append(BlockParsers, f)
 }

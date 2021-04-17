@@ -6,15 +6,7 @@ import (
 	"github.com/ray1422/SML/core/container"
 )
 
-func Test_TMP(t *testing.T) {
-	RegAll()
-	a := Parse(`
-- list
-`)
-	container.Dump(a, 0)
-}
-
-func Test_Parser(t *testing.T) {
+func TestParser(t *testing.T) {
 	RegAll()
 	txt := `# Title **BOLD**
 **BOLD \\ \* ESCAPE**

@@ -6,7 +6,7 @@ import (
 	"github.com/ray1422/SML/core/container"
 )
 
-func Test_List(t *testing.T) {
+func TestList(t *testing.T) {
 	RegAll()
 	content := `
 		- list A 1
@@ -32,7 +32,7 @@ abc
 	container.Dump(blk, 0)
 }
 
-func Test_OList(t *testing.T) {
+func TestOList(t *testing.T) {
 	RegAll()
 	content := `    1. testA
       2. testB

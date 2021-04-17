@@ -2,7 +2,7 @@ package utils
 
 import "testing"
 
-func Test_QuoteRM(t *testing.T) {
+func TestQuoteRM(t *testing.T) {
 	if QuoteRM(`'www'`) != "www" {
 		t.Error("should be `www`, got", QuoteRM(`'www'`))
 	}

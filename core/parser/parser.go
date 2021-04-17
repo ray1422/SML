@@ -90,9 +90,7 @@ func ParseNonAsync(s string) (b container.VarBlock) {
 	str := ""
 	for s != "" {
 		flag := true
-
 		for _, bp := range BlockParsers {
-
 			if val, idx := bp.Parse(s); val != nil {
 				if str != "" {
 					// clean up last str
@@ -104,7 +102,6 @@ func ParseNonAsync(s string) (b container.VarBlock) {
 				flag = false
 				break
 			}
-
 		}
 		if flag {
 			strs := specialParser.FindStringSubmatch(s)

@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func Test_Dict(t *testing.T) {
+func TestDict(t *testing.T) {
 	a := Dict{
 		"a": "wwwwwwwwwwww",
 		"d": "wwwwwwwwwwww",

@@ -7,7 +7,7 @@ import (
 	"github.com/ray1422/SML/core/container"
 )
 
-func Test_ImgParser(t *testing.T) {
+func TestImgParser(t *testing.T) {
 	RegAll()
 	txt := `!['alt text]']('src://wwwwwwwwwwww' "Title"){float: left}`
 	a := ParseNonAsync(txt)

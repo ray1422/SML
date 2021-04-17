@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func Test_RelValChain(t *testing.T) {
+func TestRelValChain(t *testing.T) {
 	defer ClearUnits()
 	p, _ := AddUnit("p", 1, nil, REL)
 	q, _ := AddUnit("q", 1, p, REL)
@@ -35,7 +35,7 @@ func Test_RelValChain(t *testing.T) {
 		t.Error("non-root should be unable to set reference value")
 	}
 }
-func Test_RelVal(t *testing.T) {
+func TestRelVal(t *testing.T) {
 	defer ClearUnits()
 	p, _ := AddUnit("p", 1, nil, REL)
 	q, _ := AddUnit("q", 1, p, REL)
@@ -46,14 +46,14 @@ func Test_RelVal(t *testing.T) {
 	}
 	fmt.Println(v)
 }
-func Test_DeleteUnit(t *testing.T) {
+func TestDeleteUnit(t *testing.T) {
 	defer ClearUnits()
 	AddUnit("test", 1, nil, ABS)
 	if RemoveUnit("test"); GetUnit("test") != nil {
 		t.Error("delete")
 	}
 }
-func Test_AddAbsUnit(t *testing.T) {
+func TestAddAbsUnit(t *testing.T) {
 	defer ClearUnits()
 	name := "test_unit"
 	u, err := AddUnit(name, 1, nil, ABS)
@@ -102,7 +102,7 @@ func Test_AddAbsUnit(t *testing.T) {
 	ClearUnits()
 }
 
-func Test_ScaleChain(t *testing.T) {
+func TestScaleChain(t *testing.T) {
 	defer ClearUnits()
 	px, err1 := AddUnit("px", 1, nil, ABS)
 	em, err2 := AddUnit("em", 16, px, ABS)
@@ -116,7 +116,7 @@ func Test_ScaleChain(t *testing.T) {
 	}
 }
 
-func Test_UnitCircle(t *testing.T) {
+func TestUnitCircle(t *testing.T) {
 	defer ClearUnits()
 	a, _ := AddUnit("a", 1, nil, ABS)
 	b, _ := AddUnit("b", 16, a, ABS)

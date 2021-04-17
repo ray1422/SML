@@ -1,144 +1,167 @@
 package parser
 
 import (
+	"fmt"
+	"io"
 	"strings"
+	"unicode"
 
 	"github.com/ray1422/SML/utils"
 )
 
-func parseAttr(_s string) (utils.Dict, int) {
-	s := []rune(_s)
-	if len(s) < 2 || s[0] != '{' {
+func parseAttr(s string) (utils.Dict, int) {
+
+	stk := utils.NewStack()
+	keys := utils.NewStack()
+	keys.Push(new(string))
+	stk.Push(&utils.Dict{})
+	parsingKey := true
+	key := func() *string { return keys.Top().(*string) }
+	cur := func() *utils.Dict { return stk.Top().(*utils.Dict) }
+	var val interface{} = nil
+	saveVal := func(trim bool) {
+		if v, ok := val.(*string); ok {
+			if trim {
+				*v = strings.TrimSpace(*v)
+			}
+			(*cur())[*key()] = *v
+			val = nil
+		}
+	}
+	reader := strings.NewReader(s)
+	r, i, err := reader.ReadRune()
+	if err != nil || r != rune('{') {
 		return nil, 0
 	}
-	strOrPtr := func(u interface{}, strip bool) interface{} {
-		if v, ok := u.(*string); ok {
-			if strip {
-				return strings.TrimSpace(*v) // dereference *string
-			}
-			return *v
-		} else {
-			return u // keep void*
+	for {
+		r, size, err := reader.ReadRune()
+		if err == io.EOF {
+			break
 		}
-	}
-	stk := utils.NewStack()
-	var cur *utils.Dict = nil
-	parsingKey := false
-	key := ""
-
-	var val interface{}
-
-	setParsingKey := func(b bool) {
-		if b {
-			key = ""
+		i += size
+		switch r {
+		case rune('{'):
+			if parsingKey { // must parsing v// al
+				return nil, 0
+			}
+			el := &utils.Dict{}
+			stk.Push(el)
+			keys.Push(new(string))
+			*key() = ""
 			parsingKey = true
-		} else {
-			val = nil
-			parsingKey = false
-		}
-	}
-	n := 0
-mainFor:
-	for n = 0; n < len(s); n++ {
-		// _, _r := range s
-		_r := s[n]
-		r := rune(_r) // for debug LOL
-		str_r := string(r)
-		_ = str_r
-
-		switch _r {
-		case '{':
-			if parsingKey { // fail // can't using dict as key for simplification
-				return nil, 0
+		case rune('}'):
+			// save last element if not ended
+			if !parsingKey || *key() != "" {
+				// last val not saved
+				saveVal(true)
+				parsingKey = true
 			}
-			setParsingKey(true)
-			stk.Push(&utils.Dict{})
-		case '}':
+			// pop keys
+			keys.Pop()
+			// save current element to parent
+			el := stk.Pop().(*utils.Dict)
 			if stk.Empty() {
-				// err
-				return nil, 0
-			}
-			if !parsingKey { // 結算上一次的 val 但是 用戶可能已經輸入逗號，那就已經除存了
-				(*stk.Top().(*utils.Dict))[key] = strOrPtr(val, true)
-			}
-			val = stk.Pop()
-
-			if stk.Empty() { // 全部解析完了，剩下的還給後面的 parser
-				cur = val.(*utils.Dict)
-				break mainFor
-			}
-			(*stk.Top().(*utils.Dict))[key] = val
-			val = nil
-			setParsingKey(true)
-		case '"', '\'':
-			if parsingKey {
-				if len(strings.TrimSpace(key)) > 0 {
-					key += string(_r)
-					break
-				}
-			} else {
-				if v, ok := val.(*string); ok && len(strings.TrimSpace(*v)) > 0 {
-					*v += string(_r)
-					break
-				}
-			}
-			tok := _r
-			buf := ""
-			for n++; n < len(s) && s[n] != tok; n++ {
-				if s[n] == '\\' && n+1 < len(s) {
-
-					buf += utils.DeEsc(string(s[n+1]))
-					n++
-					continue
-				}
-				buf += string(s[n])
+				return *el, i
 			}
 
-			if n >= len(s) || s[n] != '"' {
-				return nil, 0
-			}
-			if parsingKey {
-				key = buf
-			} else {
-				(*stk.Top().(*utils.Dict))[key] = buf
-				setParsingKey(true)
-			}
-		case ':':
-			setParsingKey(false)
-		case '\\':
-			// TODO escape
-		case '\n':
-			// TODO
-		case ',':
-			if parsingKey {
-				continue
-			}
-			(*stk.Top().(*utils.Dict))[key] = strOrPtr(val, true)
-
-			val = nil
-			setParsingKey(true)
-		case ' ', '\t':
+			(*cur())[*key()] = *el
+		case rune(':'):
 			if !parsingKey {
+				return nil, 0
+			}
+			// set parsineKey to false
+			parsingKey = false
+		case rune(','):
+			// save last element
+			saveVal(true)
+			parsingKey = true
+			*key() = ""
+		case rune('"'), rune('\''):
+			if v, ok := val.(*string); !parsingKey && ok {
+				if strings.TrimSpace(*v) != "" {
+					*v += string(r)
+					break
+				}
+			} else {
+				return nil, 0
+			}
+			buf := ""
+			j := 0
+			for {
+				r2, size, err := reader.ReadRune()
+				if err != nil {
+					return nil, 0
+				}
+				j += size
+				if r2 == r {
+					buf = s[i : i+j-size]
+					i += j
+					break
+				}
+			}
+			if parsingKey {
+				*key() = buf
+			mainFor0:
+				for {
+					r, size, err := reader.ReadRune()
+					if err != nil {
+						return nil, 0
+					}
+					switch {
+					case r == rune(':'): // 把多的字元吃掉
+						reader.UnreadRune()
+						break mainFor0
+					case unicode.IsSpace(r):
+						i += size
+					default:
+						return nil, 0
+					}
+				}
+
+			} else {
+				val = &buf
+				saveVal(false)
+			mainFor1:
+				for {
+					r, size, err := reader.ReadRune()
+					if err != nil {
+						return nil, 0
+					}
+					switch {
+					case r == rune('}'), r == rune(','): // 把多的字元吃掉
+						reader.UnreadRune()
+						break mainFor1
+					case unicode.IsSpace(r):
+						i += size
+					default:
+						return nil, 0
+					}
+				}
+			}
+			fmt.Printf("buf: '%s'\n", buf)
+		case ('\r'):
+			// TODO
+			fallthrough
+		case ('\n'):
+			// TODO
+		case (' '), ('\t'):
+			if parsingKey {
+				break
+			}
+			fallthrough
+		default:
+			if parsingKey {
+				*key() += string(r)
+			} else {
+				if val == nil {
+					val = new(string)
+					*val.(*string) = ""
+				}
 				if v, ok := val.(*string); ok {
 					*v += string(r)
 				}
 			}
-		default:
-			if parsingKey {
-				key += string(r)
-			} else {
-				if val == nil {
-					tmp := ""
-					val = &tmp
-				}
-				if v, ok := val.(*string); ok {
-					*v += string(rune(r))
-				}
-			}
 		}
 	}
-	if cur == nil {
-		return nil, 0
-	}
-	return *cur, n + 1
+	return nil, 0
 }
