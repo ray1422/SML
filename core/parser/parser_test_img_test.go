@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/ray1422/SML/core/container"
@@ -14,6 +13,6 @@ func TestImgParser(t *testing.T) {
 	container.Dump(a, 0)
 	txt = `![alt text](src://wwwwwwwwwwww Title **BOLD __ITALIC__ ** wwwww)`
 	a = ParseNonAsync(txt)
-	fmt.Println(a.Children()[0].(*container.ImageBlock))
+
 	container.Dump(a, 0)
 }

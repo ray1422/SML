@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"fmt"
 	"io"
 	"strings"
 	"unicode"
@@ -77,13 +76,17 @@ func parseAttr(s string) (utils.Dict, int) {
 			parsingKey = true
 			*key() = ""
 		case rune('"'), rune('\''):
+			r0 := r
 			if v, ok := val.(*string); !parsingKey && ok {
 				if strings.TrimSpace(*v) != "" {
 					*v += string(r)
 					break
 				}
-			} else {
-				return nil, 0
+			} else if parsingKey {
+				if strings.TrimSpace(*key()) != "" {
+					*key() += string(r)
+					break
+				}
 			}
 			buf := ""
 			j := 0
@@ -101,7 +104,8 @@ func parseAttr(s string) (utils.Dict, int) {
 			}
 			if parsingKey {
 				*key() = buf
-			mainFor0:
+				buf2 := ""
+			keyFor:
 				for {
 					r, size, err := reader.ReadRune()
 					if err != nil {
@@ -110,8 +114,9 @@ func parseAttr(s string) (utils.Dict, int) {
 					switch {
 					case r == rune(':'): // 把多的字元吃掉
 						reader.UnreadRune()
-						break mainFor0
+						break keyFor
 					case unicode.IsSpace(r):
+						buf2 += string(r)
 						i += size
 					default:
 						return nil, 0
@@ -121,7 +126,8 @@ func parseAttr(s string) (utils.Dict, int) {
 			} else {
 				val = &buf
 				saveVal(false)
-			mainFor1:
+				buf2 := ""
+			ValFor:
 				for {
 					r, size, err := reader.ReadRune()
 					if err != nil {
@@ -130,15 +136,18 @@ func parseAttr(s string) (utils.Dict, int) {
 					switch {
 					case r == rune('}'), r == rune(','): // 把多的字元吃掉
 						reader.UnreadRune()
-						break mainFor1
+						break ValFor
 					case unicode.IsSpace(r):
+						buf2 += string(r)
 						i += size
 					default:
-						return nil, 0
+						i += size
+						val = new(string)
+						*val.(*string) += string(r0) + buf + string(r0) + buf2 + string(r)
 					}
 				}
 			}
-			fmt.Printf("buf: '%s'\n", buf)
+			// fmt.Printf("buf: '%s'\n", buf)
 		case ('\r'):
 			// TODO
 			fallthrough
