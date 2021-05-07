@@ -70,7 +70,7 @@ func RegAll() {
 
 	registerLists()
 	RegisterBlockParser(&RegexParser{ // img
-		re: regexp.MustCompile(`^\!(\[(?P<alt>.*)\])\((?P<path>([^'"()\\]|\\.)*?|('([^'\\]|\\.)*?')|("([^"\\]|\\.)*?")) +(?P<title>([^'"()\\]*?)|('([^']|\\.)*?')|("([^"]|\\.)*?"))?\)`),
+		re: regexp.MustCompile(`^\!(\[(?P<alt>.*)\])\((?P<path>([^'"()\\]|\\.)*?|('([^'\\]|\\.)*?')|("([^"\\]|\\.)*?"))( (?P<title>([^'"()\\]*?)|('([^']|\\.)*?')|("([^"]|\\.)*?")))?\)`),
 		parse: func(re *regexp.Regexp, s string) (container.Block, int) {
 			subs := utils.RegexNamedGroupMap(re.FindStringSubmatch(s), re.SubexpNames())
 			if subs == nil {
